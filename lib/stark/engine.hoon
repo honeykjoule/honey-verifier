@@ -36,7 +36,7 @@
 ::
 |_  stark-input
 ++  num-challenges     num-total-chals:chal
-++  log-expand-factor  3
+++  log-expand-factor  1
 ++  expand-factor      (bex log-expand-factor)
 ++  security-level     17
 ++  num-colinear-t     (div security-level log-expand-factor)

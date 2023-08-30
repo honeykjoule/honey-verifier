@@ -24,14 +24,13 @@
 ;<  =bowl:rand         bind:m  get-bowl
 ::  1
 ;<  ~      bind:m   (poke-our %verifier verifier-request-0+!>(`verifier-request`[%prove tid.bowl s f]))
-~&  "pt 1"
 ::  2
 ;<  =vase  bind:m   (take-poke %verifier-update-0)
-~&  "pt 2"
 =/  upd  !<(verifier-update vase)
 ?>  ?=(%prove-info -.upd)
 =/  rid=@uv  request-id.upd
-~&  >  "prove-eden: request-id is {<rid>}"
+~&  >  "prove-eden: proof has been requested (rid={<rid>})"
 ::  3
+~&  >  "waiting for response... this may take up to 10 mins"
 ;<  res=(unit verify-result)  bind:m  ((retry (unit verify-result)) `max-retries (get-proof rid byk.bowl))
 (pure:m !>(res))

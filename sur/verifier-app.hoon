@@ -8,6 +8,7 @@
 ::
 +$  verifier-command
   $%  [%set-proxy new=ship]
+      [%set-state new=versioned-state]
   ==
 ::
 +$  verifier-update

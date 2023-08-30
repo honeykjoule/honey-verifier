@@ -85,10 +85,14 @@
     ::  commands are admin powers and can only be issued locally
     ?>  =(our.bol src.bol)
     =/  com  !<(verifier-command vase)
-    ::?.  ?=(%set-proxy -.com)  ~|(%unknown-command !!)
-    ~&  old+prox.state
-    =.  prox  new.com
-    ~&  new+prox.state
+    ?:  ?=(%set-proxy -.com)
+      ~&  old+prox.state
+      =.  prox  new.com
+      ~&  new+prox.state
+      `state
+    ::  %set-state
+    ~&  "verifier: updating full state"
+    =.  state  new.com
     `state
   ==
   [cards this]
