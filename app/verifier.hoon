@@ -74,8 +74,11 @@
     =/  upd     !<(proof-update vase)
     =.  proofs  (~(put by proofs) request-id.upd upd)
     ~&  "verifier: got proof update for {<request-id.upd>}"
-    ?:  ?=(%proof -.response.upd)
-      =/  ver=verify-result  (~(verify nv eny.bol ~) proof.response.upd)
+    =/  proof=(unit proof)  (extract-proof-debug upd request-id.upd)
+    ?^  proof
+      ~&  "verifying proof"
+      =/  ver=verify-result  (~(verify nv eny.bol ~) u.proof)
+      ~&  >  "verification complete"
       =.  verifications  (~(put by verifications) request-id.upd (some ver))
       `state
     =.  verifications  (~(put by verifications) request-id.upd ~)

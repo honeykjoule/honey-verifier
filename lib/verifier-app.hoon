@@ -22,7 +22,7 @@
       ~
     (some proof.response.upd)
   ::  handle the error case
-  ~&  >>  "proof request was unsuccessful"
+  ~&  >>  "the proof request returned an error"
   =/  err  err.response.upd
   ?-    -.err
       %crash
