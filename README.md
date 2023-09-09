@@ -21,9 +21,15 @@ Here's how you would do that in the dojo:
 ~&  size-kb+(met 13 (jam proof))
 ```
 
-Line 1 gets the agent state. This contains all of the relevant data we'll need for the next steps, including the proofs themselves.
-Line 2 gets the associated request id for the computation
-Line 3 gets the proof update that was provided in the response to our request based on the request id
-Finally, Line 4 extracts the proof object from the proof update. This line assumes that the proof was successful.
+1. Line 1 gets the agent state. This contains all of the relevant data we'll need for the next steps, including the proofs themselves.
+2. Line 2 gets the associated request id for the computation
+3. Line 3 gets the proof update that was provided in the response to our request based on the request id
+4. Finally, Line 4 extracts the proof object from the proof update. This line assumes that the proof was successful.
 
-We recommend that you do *not* try to print out the proof since its a big object to print and largely made up of hex data.
+This pattern can be replicated in any generator, thread, or agent in which you make use of the proof system.
+
+A final note: we recommend that you do *not* try to print out the proof since its a big object to print and largely made up of hex data.
+
+
+
+
