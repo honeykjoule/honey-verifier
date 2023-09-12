@@ -5,7 +5,7 @@ Welcome to the Eden Verifier. This codebase includes a `%verifier` agent along w
 
 
 
-## Obtaining the verification result after the thread has timed out
+## Obtaining the verification result in case the `-prove-eden` thread times out
 
 In the ideal case, the `-prove-eden` thread returns a `verify-result`.
 However, for various reasons, the thread can time out before the proof is received from the prover.
