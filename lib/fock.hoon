@@ -2,6 +2,7 @@
 /+  *goldilocks, shape, *challenges, util=table-util, *transpile, jet, bn=bignum
 ~%  %fock  ..part  ~
 |%
+++  fink-max-depth  4.000  :: (fib 50) gets to about 2.000 at current settings
 ++  indirect-to-bits
   ~/  %indirect-to-bits
   |=  axi=@
@@ -39,13 +40,14 @@
       [$(a -.a) $(a +.a)]
     ?:  (based a)
       a
-    ~&  not-based+a
-    =/  pax  (indirect-to-bits a)
-    |-
-    =^  b  pax
-      (take pax)
-    ?~  pax  b
-    [b $]
+    ~|(untagged-bignum+a !!)
+    ::~&  not-based+a
+    ::=/  pax  (indirect-to-bits a)
+    ::|-
+    ::=^  b  pax
+    ::  (take pax)
+    ::?~  pax  b
+    ::[b $]
   ::
   ++  take
     |=  pax=(list ?)
@@ -224,6 +226,8 @@
   =|  ret=return
   =.  ret  ret(s subject, f formula)
   |^  ^-  (pair * return)
+  =.  recur-depth.ret  +(recur-depth.ret)
+  ?:  (gte recur-depth.ret fink-max-depth)  ~|(%recursion-depth-exceeded !!)
   =.  stack.ret  [formula subject stack.ret]
   ::  XX duplicated code. should refactor out to a map-based multiset door or smtn
   =.  subjects.ret

@@ -38,13 +38,12 @@
   =^  cards  state
   ?+    mark  (on-poke:def mark vase)
       %verifier-request-0
-    ::  TODO make a compilation poke that takes a path and stores (or outputs to file) compiled nock
     =/  req         !<(verifier-request vase)
     ?-    -.req
         %build
       =/  base=path  /(scot %p our.bol)/[q.byk.bol]/(scot %da now.bol)
-      =/  flib     (slap !>(~) (ream .^(@t %cx (weld base /lib/flib/hoon))))
-      =/  program  (slap flib (ream .^(@t %cx path.req)))
+      =/  flib       (slap !>(~) (ream .^(@t %cx (weld base /lib/flib/hoon))))
+      =/  program    (slap flib (ream .^(@t %cx path.req)))
       =/  program-built=[* *]
         (post:fock:nv ;;([* *] q:(flap:fock:nv program input.req)))
       :_  state

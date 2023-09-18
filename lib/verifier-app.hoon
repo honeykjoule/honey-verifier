@@ -28,8 +28,9 @@
       %crash
     ~&  >>  "prover crashed"
     ~&  "one reason may be that the compiled eden formula that was sent caused a crash at runtime"
-    ~&  "stack trace:"
+    ~&  >>  "========== prover stack trace =========="
     %-  (slog trace.err)
+    ~&  >>  "========== prover stack trace =========="
     ~
   ::
       %too-big
