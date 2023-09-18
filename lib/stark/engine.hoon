@@ -36,7 +36,7 @@
 ::
 |_  stark-input
 ++  num-challenges     num-total-chals:chal
-++  log-expand-factor  1
+++  log-expand-factor  3  ::  could set to 1 for faster proofs but then small computations are maybe too small
 ++  expand-factor      (bex log-expand-factor)
 ++  security-level     17
 ++  num-colinear-t     (div security-level log-expand-factor)

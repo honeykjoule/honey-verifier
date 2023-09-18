@@ -15,6 +15,7 @@
       subjects=(map subject=* count=@)
       [s=* f=*]
       jets=(list [@tas sam=* prod=*])
+      recur-depth=@
   ==
 ::
 ::  dyck-stack: horner accumulated stack of dyck path

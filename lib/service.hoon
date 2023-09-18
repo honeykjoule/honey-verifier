@@ -8,8 +8,4 @@
   |=  [requester=ship sub=* fol=* n=*]
   ^-  @uv
   (sham requester sub fol n)
-::++  proxy-ack-path
-::  |=  req-id=@uv
-::  ^-  path
-::  /proxy-ack/(scot %uv req-id)
 --
