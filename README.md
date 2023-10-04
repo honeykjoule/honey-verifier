@@ -3,9 +3,27 @@
 Welcome to the Eden Verifier. This codebase includes a `%verifier` agent along with a few threads that enable you to send Eden computations to a prover to generate proofs that can be passed around and verified. Please see our [blog post](https://zorp.io/blog/hackathon/) for more details.
 
 
+## Recipes
 
 
-## Obtaining the verification result in case the `-prove-eden` thread times out
+### Upgrading the `%verifier` codebase to the latest update
+
+We periodically ship new releases to both our prover and verifier codebases. 
+Some of these update may introduce a backwards-incompatible change, requiring an update.
+
+Here are the steps to update your version of `%verifier`:
+
+1. Navigate to the folder containing the cloned `verifier` git repo - `cd /path/to/verifier`
+2. Pull the latest changes `git pull`
+3. Navigate outside of the verifier repo - `cd ..`
+4. Copy the latest files to your mounted desk - `cp -LR ./verifier/* ./path/to/your/pier/zkvm/`
+5. Commit the changes in your ship `dojo> |commit %zkvm`
+
+As always, feel free to file an issue if you encounter any trouble.
+
+
+
+### Obtaining the verification result in case the `-prove-eden` thread times out
 
 In the ideal case, the `-prove-eden` thread returns a `verify-result`.
 However, for various reasons, the thread can time out before the proof is received from the prover.
@@ -40,7 +58,7 @@ Then, you can simply scry out the the verify result like so.
 
 
 
-## Obtaining the proof object from the `%verifier` agent.
+### Obtaining the proof object from the `%verifier` agent.
 
 So, say you've requested a proof using the `-prove-eden` thread and you want to obtain
 the proof you received so that you can, for instance, send it to another ship.
