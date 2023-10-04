@@ -1,6 +1,7 @@
 /-  fock
 /+  *goldilocks, *challenges, *bignum
 =,  f
+=,  mp-to-graph
 |%
 ++  ecc  secp256k1:secp:crypto
 ::
@@ -11,10 +12,10 @@
 ++  one-poly  (mp-c (lift 1))
 ++  zero-poly  (mp-c (lift 0))
 ++  var
-  |_  variables=(map term multi-poly:f)
+  |_  variables=(map term mp-graph:f)
   ++  v
     |=  nam=term
-    ^-  multi-poly:f
+    ^-  mp-graph:f
     ~+
     ~|  var-not-found+nam
     (~(got by variables) nam)
@@ -49,12 +50,12 @@
 ++  enc
   |_  st=encoder
   ++  encode
-    |=  poly=multi-poly
-    ^-  multi-poly
+    |=  poly=mp-graph
+    ^-  mp-graph
     (mpadd (mp-c a.st) (mpscal c.st poly))
   --
 ++  make-encoder
-  |=  [vars=(map term multi-poly) challenges=(list felt)]
+  |=  [vars=(map term mp-graph) challenges=(list felt)]
   ^-  encoder
   =/  r   ~(r rnd (make-challenge-map challenges %jet))
   [(r %a) (r %c)]
@@ -90,8 +91,8 @@
   ::
   ::  transition constraints for this jet
   ++  transition-constraints
-    |~  [vars=(map term multi-poly) challenges=(list felt)]
-    *(map term multi-poly)
+    |~  [vars=(map term mp-graph) challenges=(list felt)]
+    *(map term mp-graph)
   --
 ::  TODO move these out of this file and into a dedicated directory
 ++  dec-jet
@@ -119,11 +120,11 @@
     ~
   ::
   ++  transition-constraints
-    |=  [vars=(map term multi-poly) challenges=(list felt)]
-    ^-  (map term multi-poly)
+    |=  [vars=(map term mp-graph) challenges=(list felt)]
+    ^-  (map term mp-graph)
     =/  v  ~(v var vars)
     =/  e  ~(. enc (make-encoder vars challenges))
-    %-  ~(gas by *(map term multi-poly))
+    %-  ~(gas by *(map term mp-graph))
     :~  :-  %dec-poly
         (mpsub (v %prod) (encode.e (mpsub (v %e0) one-poly)))
     ==
@@ -157,11 +158,11 @@
     ~
   ::
   ++  transition-constraints
-    |=  [vars=(map term multi-poly) challenges=(list felt)]
-    ^-  (map term multi-poly)
+    |=  [vars=(map term mp-graph) challenges=(list felt)]
+    ^-  (map term mp-graph)
     =/  v  ~(v var vars)
     =/  e  ~(. enc (make-encoder vars challenges))
-    %-  ~(gas by *(map term multi-poly))
+    %-  ~(gas by *(map term mp-graph))
     :~  :-  %add-poly
         (mpsub (v %prod) (encode.e (mpadd (v %e1) (v %e3))))
     ==
@@ -191,8 +192,8 @@
     ~
   ::
   ++  transition-constraints
-    |=  [vars=(map term multi-poly) challenges=(list felt)]
-    ^-  (map term multi-poly)
+    |=  [vars=(map term mp-graph) challenges=(list felt)]
+    ^-  (map term mp-graph)
     ~
   --
 ::
@@ -221,8 +222,8 @@
     ~
   ::
   ++  transition-constraints
-    |=  [vars=(map term multi-poly) challenges=(list felt)]
-    ^-  (map term multi-poly)
+    |=  [vars=(map term mp-graph) challenges=(list felt)]
+    ^-  (map term mp-graph)
     ~
   --
 ::
@@ -251,8 +252,8 @@
     ~
   ::
   ++  transition-constraints
-    |=  [vars=(map term multi-poly) challenges=(list felt)]
-    ^-  (map term multi-poly)
+    |=  [vars=(map term mp-graph) challenges=(list felt)]
+    ^-  (map term mp-graph)
     ~
   --
 ::
@@ -281,8 +282,8 @@
     ~
   ::
   ++  transition-constraints
-    |=  [vars=(map term multi-poly) challenges=(list felt)]
-    ^-  (map term multi-poly)
+    |=  [vars=(map term mp-graph) challenges=(list felt)]
+    ^-  (map term mp-graph)
     ~
   --
 ::
@@ -311,8 +312,8 @@
     ~
   ::
   ++  transition-constraints
-    |=  [vars=(map term multi-poly) challenges=(list felt)]
-    ^-  (map term multi-poly)
+    |=  [vars=(map term mp-graph) challenges=(list felt)]
+    ^-  (map term mp-graph)
     ~
   --
 ::
@@ -341,8 +342,8 @@
     ~
   ::
   ++  transition-constraints
-    |=  [vars=(map term multi-poly) challenges=(list felt)]
-    ^-  (map term multi-poly)
+    |=  [vars=(map term mp-graph) challenges=(list felt)]
+    ^-  (map term mp-graph)
     ~
   --
 ::
@@ -369,8 +370,8 @@
     ~
   ::
   ++  transition-constraints
-    |=  [vars=(map term multi-poly) challenges=(list felt)]
-    ^-  (map term multi-poly)
+    |=  [vars=(map term mp-graph) challenges=(list felt)]
+    ^-  (map term mp-graph)
     ~
   --
 ::
@@ -397,8 +398,8 @@
     ~
   ::
   ++  transition-constraints
-    |=  [vars=(map term multi-poly) challenges=(list felt)]
-    ^-  (map term multi-poly)
+    |=  [vars=(map term mp-graph) challenges=(list felt)]
+    ^-  (map term mp-graph)
     ~
   --
 ++  hash-jet
@@ -424,8 +425,8 @@
     ~
   ::
   ++  transition-constraints
-    |=  [vars=(map term multi-poly) challenges=(list felt)]
-    ^-  (map term multi-poly)
+    |=  [vars=(map term mp-graph) challenges=(list felt)]
+    ^-  (map term mp-graph)
     ~
   --
 ::

@@ -1,11 +1,13 @@
 /+  *table, *fock, common=table-zero, terminal, jet
 =,  f
+=,  mp-to-graph
 ::
 |%
 ++  v  ~(v var variables:common)
 ++  one      (mp-c (lift 1))
 ::
 ++  nockzs
+  =,  mp-to-graph
   |%
   ::
   ++  funcs
@@ -24,42 +26,42 @@
       =/  nu           ~(. noun-poly-utils [a b c alf] variables:common)
       ::
       ::  polynomials for tree felts
-      =/  tree-felt=multi-poly
+      =/  tree-felt=mp-graph
         ;:  mpadd
           (mpscal a (v %tree-len))
           (mpscal b (v %tree-dyck))
           (mpscal c (v %tree-leaf))
         ==
       ::
-      =/  left-felt=multi-poly
+      =/  left-felt=mp-graph
         ;:  mpadd
           (mpscal a (v %left-len))
           (mpscal b (v %left-dyck))
           (mpscal c (v %left-leaf))
         ==
       ::
-      =/  right-felt=multi-poly
+      =/  right-felt=mp-graph
         ;:  mpadd
           (mpscal a (v %right-len))
           (mpscal b (v %right-dyck))
           (mpscal c (v %right-leaf))
         ==
       ::
-      =/  new-tree-felt=multi-poly
+      =/  new-tree-felt=mp-graph
         ;:  mpadd
           (mpscal a (v %new-tree-len))
           (mpscal b (v %new-tree-dyck))
           (mpscal c (v %new-tree-leaf))
         ==
       ::
-      =/  new-left-felt=multi-poly
+      =/  new-left-felt=mp-graph
         ;:  mpadd
           (mpscal a (v %new-left-len))
           (mpscal b (v %new-left-dyck))
           (mpscal c (v %new-left-leaf))
         ==
       ::
-      =/  new-right-felt=multi-poly
+      =/  new-right-felt=mp-graph
         ;:  mpadd
           (mpscal a (v %new-right-len))
           (mpscal b (v %new-right-dyck))
@@ -67,42 +69,42 @@
         ==
       ::
       ::  next row tree felts
-      =/  tree-felt-n=multi-poly
+      =/  tree-felt-n=mp-graph
         ;:  mpadd
           (mpscal a (v %tree-len-n))
           (mpscal b (v %tree-dyck-n))
           (mpscal c (v %tree-leaf-n))
         ==
       ::
-      =/  left-felt-n=multi-poly
+      =/  left-felt-n=mp-graph
         ;:  mpadd
           (mpscal a (v %left-len-n))
           (mpscal b (v %left-dyck-n))
           (mpscal c (v %left-leaf-n))
         ==
       ::
-      =/  right-felt-n=multi-poly
+      =/  right-felt-n=mp-graph
         ;:  mpadd
           (mpscal a (v %right-len-n))
           (mpscal b (v %right-dyck-n))
           (mpscal c (v %right-leaf-n))
         ==
       ::
-      =/  new-tree-felt-n=multi-poly
+      =/  new-tree-felt-n=mp-graph
         ;:  mpadd
           (mpscal a (v %new-tree-len-n))
           (mpscal b (v %new-tree-dyck-n))
           (mpscal c (v %new-tree-leaf-n))
         ==
       ::
-      =/  new-left-felt-n=multi-poly
+      =/  new-left-felt-n=mp-graph
         ;:  mpadd
           (mpscal a (v %new-left-len-n))
           (mpscal b (v %new-left-dyck-n))
           (mpscal c (v %new-left-leaf-n))
         ==
       ::
-      =/  new-right-felt-n=multi-poly
+      =/  new-right-felt-n=mp-graph
         ;:  mpadd
           (mpscal a (v %new-right-len-n))
           (mpscal b (v %new-right-dyck-n))
@@ -223,7 +225,7 @@
     ::    Thus no additional output accumulation can occur in this section.
     ++  transition-constraints
       |=  [challenges=(list felt) =jet-map:jet]
-      ^-  (map term multi-poly)
+      ^-  (map term mp-graph)
       =/  r  ~(r rnd (make-challenge-map challenges %nockzs))
       =/  [a=felt b=felt c=felt p=felt q=felt r=felt s=felt t=felt alf=felt bet=felt]
         :*  (r %a)  (r %b)  (r %c)
@@ -235,80 +237,80 @@
       =/  nu           ~(. noun-poly-utils [a b c alf] variables:common)
       ::
       ::  polynomials for tree felts
-      =/  tree-felt=multi-poly
+      =/  tree-felt=mp-graph
         ;:  mpadd
           (mpscal a (v %tree-len))
           (mpscal b (v %tree-dyck))
           (mpscal c (v %tree-leaf))
         ==
-      =/  left-felt=multi-poly
+      =/  left-felt=mp-graph
         ;:  mpadd
           (mpscal a (v %left-len))
           (mpscal b (v %left-dyck))
           (mpscal c (v %left-leaf))
         ==
-      =/  right-felt=multi-poly
+      =/  right-felt=mp-graph
         ;:  mpadd
           (mpscal a (v %right-len))
           (mpscal b (v %right-dyck))
           (mpscal c (v %right-leaf))
         ==
-      =/  new-tree-felt=multi-poly
+      =/  new-tree-felt=mp-graph
         ;:  mpadd
           (mpscal a (v %new-tree-len))
           (mpscal b (v %new-tree-dyck))
           (mpscal c (v %new-tree-leaf))
         ==
-      =/  new-left-felt=multi-poly
+      =/  new-left-felt=mp-graph
         ;:  mpadd
           (mpscal a (v %new-left-len))
           (mpscal b (v %new-left-dyck))
           (mpscal c (v %new-left-leaf))
         ==
-      =/  new-right-felt=multi-poly
+      =/  new-right-felt=mp-graph
         ;:  mpadd
           (mpscal a (v %new-right-len))
           (mpscal b (v %new-right-dyck))
           (mpscal c (v %new-right-leaf))
         ==
       ::  next row tree felts
-      =/  tree-felt-n=multi-poly
+      =/  tree-felt-n=mp-graph
         ;:  mpadd
           (mpscal a (v %tree-len-n))
           (mpscal b (v %tree-dyck-n))
           (mpscal c (v %tree-leaf-n))
         ==
-      =/  left-felt-n=multi-poly
+      =/  left-felt-n=mp-graph
         ;:  mpadd
           (mpscal a (v %left-len-n))
           (mpscal b (v %left-dyck-n))
           (mpscal c (v %left-leaf-n))
         ==
-      =/  right-felt-n=multi-poly
+      =/  right-felt-n=mp-graph
         ;:  mpadd
           (mpscal a (v %right-len-n))
           (mpscal b (v %right-dyck-n))
           (mpscal c (v %right-leaf-n))
         ==
-      =/  new-tree-felt-n=multi-poly
+      =/  new-tree-felt-n=mp-graph
         ;:  mpadd
           (mpscal a (v %new-tree-len-n))
           (mpscal b (v %new-tree-dyck-n))
           (mpscal c (v %new-tree-leaf-n))
         ==
-      =/  new-left-felt-n=multi-poly
+      =/  new-left-felt-n=mp-graph
         ;:  mpadd
           (mpscal a (v %new-left-len-n))
           (mpscal b (v %new-left-dyck-n))
           (mpscal c (v %new-left-leaf-n))
         ==
-      =/  new-right-felt-n=multi-poly
+      =/  new-right-felt-n=mp-graph
         ;:  mpadd
           (mpscal a (v %new-right-len-n))
           (mpscal b (v %new-right-dyck-n))
           (mpscal c (v %new-right-leaf-n))
         ==
-      %-  ~(gas by *(map term multi-poly))
+      %-  ~(gas by *(map term mp-graph))
       :~
         ::
         ::  path is binary
@@ -587,7 +589,7 @@
         ==
       ::=/  nockzs-terminals=(unit (map term felt))
       =/  nockzs-terminals  (~(get by terminals) %nockzs)
-      =/  terminal-consistency-checks=(list multi-poly)
+      =/  terminal-consistency-checks=(list mp-graph)
         ?~  nockzs-terminals  ~
         (gen-consistency-checks:terminal u.nockzs-terminals variable-labels:common v)
       %+  weld  terminal-consistency-checks

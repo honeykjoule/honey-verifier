@@ -1,4 +1,5 @@
 ::  merkle
+~%  %merkel  ..part  ~
 |%
 ::
 +$  merk         [h=@uv n=$@(@ (pair merk merk))]
@@ -10,6 +11,7 @@
 +$  merk-proof   [root=@uv path=(list @uv)]
 ::
 ++  build-merk
+  ~/  %build-merk
   |=  n=*
   ^-  merk
   ?@  n  [(shax n) n]
@@ -18,18 +20,21 @@
   [(shax (cat 3 h.l h.r)) l r]
 ::
 ++  index-to-axis
+  ~/  %index-to-axis
   |=  [h=@ i=@]
   ^-  axis
   =/   min  (bex (dec h))
   (add min i)
 ::
 ++  list-to-balanced-merk
+  ~/  %list-to-balanced-merk
   |=  lis=(list @)
   ^-  (pair @ merk)
   =-  [h (build-merk t)]
   (list-to-balanced-tree lis)
 ::
 ++  list-to-balanced-tree
+  ~/  %list-to-balanced-tree
   |=  lis=(list @)
   ^-  [h=@ t=*]
   :-  (xeb (lent lis))
@@ -51,6 +56,7 @@
   [l r]
 ::
 ++  build-merk-proof
+  ~/  %build-merk-proof
   |=  [=merk axis=@]
   ^-  merk-proof
   ?:  =(0 axis)  !!
@@ -66,6 +72,7 @@
   $(pat t.pat, lis [h.p.n.merk lis], merk q.n.merk)
 ::
 ++  axis-to-path
+  ~/  %axis-to-path
   |=  axi=@
   ^-  (list ?)
   =|  lis=(list ?)
@@ -75,6 +82,7 @@
   $(axi p.hav, lis [=(q.hav 0) lis])
 ::
 ++  build-merk-cap
+  ~/  %build-merk-cap
   =|  lis=merk-cap
   |=  [=merk h=@]
   ^-  merk-cap
@@ -86,6 +94,7 @@
   (weld l r)
 ::
 ++  verify-merk-proof
+  ~/  %verify-merk-proof
   |=  [leaf=@ axis=@ merk-proof]
   ^-  ?
   ?:  =(0 axis)  %.n
@@ -102,6 +111,7 @@
   $(axis (div (dec axis) 2), leaf (shax (cat 3 sib leaf)), path t.path)
 ::
 ++  verify-merk-proof-to-cap
+  ~/  %verify-merk-proof-to-cap
   |=  [leaf=@ axis=@ cap=merk-cap merk-proof]
   ^-  ?
   =/  xeb-axi  (xeb axis)

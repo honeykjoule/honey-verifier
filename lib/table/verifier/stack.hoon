@@ -2,6 +2,7 @@
 =,  f
 |%
 ++  stack
+  =,  mp-to-graph
   |%
   ++  one        (mp-c (lift 1))
   ++  zero       (mp-c (lift 0))
@@ -9,10 +10,10 @@
   ++  finish-mp  (mp-c (lift 0))
   ++  v  ~(v var variables:common)
   ++  sel
-    |=  [nams=(list term) mp=multi-poly]
-    ^-  multi-poly
+    |=  [nams=(list term) mp=mp-graph]
+    ^-  mp-graph
     %+  roll  nams
-    |:  [nam=`term`%$ poly=`multi-poly`mp]
+    |:  [nam=`term`%$ poly=`mp-graph`mp]
     (mpmul (v nam) poly)
   ::
   ++  funcs
@@ -20,14 +21,14 @@
     |%
     ++  boundary-constraints
       |=  challenges=(list felt)
-      ^-  (list multi-poly)
+      ^-  (list mp-graph)
       ~
     ::
     ++  terminal-constraints
       |=  [challenges=(list felt) terminals=(map term (map term felt))]
-      ^-  (list multi-poly)
+      ^-  (list mp-graph)
       =/  stack-terminals  (~(get by terminals) %stack)
-      =/  terminal-consistency-checks=(list multi-poly)
+      =/  terminal-consistency-checks=(list mp-graph)
         ?~  stack-terminals  ~
         (gen-consistency-checks:terminal u.stack-terminals column-names:common v)
       %+  weld  terminal-consistency-checks
@@ -36,7 +37,7 @@
     ::
     ++  transition-constraints
       |=  [challenges=(list felt) =jet-map]
-      ^-  (map term multi-poly)
+      ^-  (map term mp-graph)
       ~+
       ::  name challenges
       =/  r   ~(r rnd (make-challenge-map challenges %stack))
@@ -61,24 +62,25 @@
       =/  make-noun    ~(compress poly-tupler ~[a b c])
       =/  memset        [bet (v %mem)]
       =/  mem-ld       ~(. poly-ld bet)
-      =/  make-zero    ~(make-zero poly-nock-zero memset tupler)
-      =/  make-zeroes  ~(make-zeroes poly-nock-zero memset tupler)
+      ::=/  make-zero    ~(make-zero poly-nock-zero memset tupler)
+     :: =/  make-zeroes  ~(make-zeroes poly-nock-zero memset tupler)
       =/  noun-chals    [a b c alf]
       =/  nu           ~(. noun-poly-utils noun-chals variables:common)
       =/  su           ~(. subtree-ld-utils tupler)
-      =/  cs            (v %cs)
+      =/  cs=mp-graph            (v %cs)
       =/  ps            (v %ps)
       =/  os            (v %os)
       ::
       ::  6 encoded as a tree-felt
       =/  poly-6  (mpadd (mp-c a) (mpscal c (mp-c (lift 6))))
       ::
-      %-  ~(gas by *(map term multi-poly))
+      %-  ~(gas by *(map term mp-graph))
       :~  ::  mode flags must be binary
           ::  m1(1-m1)=0, ...
           ::
           ::
-          [%popf-binary (mpmul (v %popf) (mpsub one (v %popf)))]
+          =/  mp=mp-graph  (mpmul (v %popf) (mpsub one (v %popf)))
+          [%popf-binary mp]
           :: opcode flags must be binary
           :: o0(1-o0)=0 ...
           [%o0 (mpmul (v %o0) (mpsub one (v %o0)))]

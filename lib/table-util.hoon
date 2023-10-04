@@ -1,9 +1,10 @@
 /+  goldilocks
 =,  f:goldilocks
+=,  mp-to-graph
 |%
 ++  unlabel-constraints
-  |=  mp=(map term multi-poly)
-  ^-  (list multi-poly)
+  |=  mp=(map term mp-graph)
+  ^-  (list mp-graph)
   (turn ~(tap by mp) tail)
 +$  felt-stack
   $:  alf=felt
@@ -141,8 +142,8 @@
   ::  => (bet-value)*ldc' = (bet-value)*ldc + n
   ::  => (bet-value)*ldc' - [(bet-value)*ldc) + n] = 0
   ++  add
-    |=  [mold=multi-poly mnew=multi-poly v=multi-poly n=multi-poly]
-    ^-  multi-poly
+    |=  [mold=mp-graph mnew=mp-graph v=mp-graph n=mp-graph]
+    ^-  mp-graph
     %+  mpsub  (mpmul (mpsub (mp-c bet) v) mnew)
     (mpadd n (mpmul (mpsub (mp-c bet) v) mold))
   --
@@ -151,17 +152,17 @@
   |_  cs=(list felt)
   :: Create a compressed felt of a zero access which can be added to a multiset
   ++  make-zero
-    |=  [noun=multi-poly axis=multi-poly child=multi-poly]
-    ^-  multi-poly
+    |=  [noun=mp-graph axis=mp-graph child=mp-graph]
+    ^-  mp-graph
     (make-ten noun axis child noun child)
   ++  make-ten
-    |=  $:  noun=multi-poly
-            axis=multi-poly
-            child=multi-poly
-            new-noun=multi-poly
-            new-child=multi-poly
+    |=  $:  noun=mp-graph
+            axis=mp-graph
+            child=mp-graph
+            new-noun=mp-graph
+            new-child=mp-graph
         ==
-    ^-  multi-poly
+    ^-  mp-graph
     (~(compress poly-tupler cs) ~[noun axis child new-noun new-child])
   --
 ::
@@ -175,58 +176,58 @@
     (fadd acc (fmul c f))
   --
 ++  poly-stack
-  |_  [alf=felt alf-inv=felt vars=(map term multi-poly)]
+  |_  [alf=felt alf-inv=felt vars=(map term mp-graph)]
   ++  v
     |=  nam=term
-    ^-  multi-poly
+    ^-  mp-graph
     ~+
     ~|  var-not-found+nam
     (~(got by vars) nam)
   ++  push
-    |=  [s=multi-poly nam=multi-poly]
-    ^-  multi-poly
+    |=  [s=mp-graph nam=mp-graph]
+    ^-  mp-graph
     (mpadd (mpscal alf s) nam)
   ++  push-all
-    |=  [s=multi-poly nams=(list multi-poly)]
-    ^-  multi-poly
+    |=  [s=mp-graph nams=(list mp-graph)]
+    ^-  mp-graph
     %+  roll  nams
-    |:  [nam=`multi-poly`(mp-c (lift 0)) mp=`multi-poly`s]
+    |:  [nam=`mp-graph`(mp-c (lift 0)) mp=`mp-graph`s]
     (push mp nam)
   ++  pop
-    |=  [s=multi-poly nam=multi-poly]
-    ^-  multi-poly
+    |=  [s=mp-graph nam=mp-graph]
+    ^-  mp-graph
     (mpscal alf-inv (mpsub s nam))
   ++  pop-all
-    |=  [s=multi-poly nams=(list multi-poly)]
-    ^-  multi-poly
+    |=  [s=mp-graph nams=(list mp-graph)]
+    ^-  mp-graph
     %+  roll  nams
-    |:  [nam=`multi-poly`(mp-c (lift 0)) mp=`multi-poly`s]
+    |:  [nam=`mp-graph`(mp-c (lift 0)) mp=`mp-graph`s]
     (pop mp nam)
   --
 ::
 ++  poly-tupler
   |_  cs=(list felt)
   ++  compress
-    |=  nams=(list multi-poly)
-    ^-  multi-poly
+    |=  nams=(list mp-graph)
+    ^-  mp-graph
     %^  zip-roll  cs  nams
-    |=  [[c=felt n=multi-poly] acc=_(mp-c (lift 0))]
+    |=  [[c=felt n=mp-graph] acc=_(mp-c (lift 0))]
     (mpadd acc (mpscal c n))
   --
 ::
-+$  poly-multiset  [bet=felt m=multi-poly]
++$  poly-multiset  [bet=felt m=mp-graph]
 ++  poly-mset
   |_  ms=poly-multiset
   ++  mult
-    |=  nam=multi-poly
+    |=  nam=mp-graph
     ^-  poly-multiset
     :-  bet.ms
     (mpmul m.ms (mpsub (mp-c bet.ms) nam))
   ++  mult-all
-    |=  nams=(list multi-poly)
+    |=  nams=(list mp-graph)
     ^-  poly-multiset
     %+  roll  nams
-    |=  [nam=multi-poly acc=_ms]
+    |=  [nam=mp-graph acc=_ms]
     (~(mult poly-mset acc) nam)
   --
 ::
@@ -245,18 +246,18 @@
 ++  poly-nock-zero
   |_  [ms=poly-multiset tupler=(list felt)]
   ++  make-zero
-    |=  [noun=multi-poly axis=multi-poly child=multi-poly]
-    ^-  multi-poly
+    |=  [noun=mp-graph axis=mp-graph child=mp-graph]
+    ^-  mp-graph
     =<  m
     %-  ~(mult poly-mset ms)
     (~(compress poly-tupler tupler) ~[noun axis child noun child])
   ++  make-zeroes
-    |=  zs=(list [noun=multi-poly axis=multi-poly child=multi-poly])
-    ^-  multi-poly
+    |=  zs=(list [noun=mp-graph axis=mp-graph child=mp-graph])
+    ^-  mp-graph
     =<  m
     %-  ~(mult-all poly-mset ms)
     %+  turn  zs
-    |=  [noun=multi-poly axis=multi-poly child=multi-poly]
+    |=  [noun=mp-graph axis=mp-graph child=mp-graph]
     (~(compress poly-tupler tupler) ~[noun axis child noun child])
   --
 ::
@@ -332,25 +333,25 @@
   --
 ++  noun-poly-utils
   |_  $:  noun-chals=[a=felt b=felt c=felt alf=felt]
-          vars=(map term multi-poly)
+          vars=(map term mp-graph)
       ==
   ++  v
     |=  nam=term
-    ^-  multi-poly
+    ^-  mp-graph
     ~+
     ~|  var-not-found+nam
     (~(got by vars) nam)
   ++  build-atom-literal
     |=  atom=@
-    ^-  multi-poly
+    ^-  mp-graph
     (mp-c (fadd a.noun-chals (fmul c.noun-chals (lift atom))))
   ++  build-atom-reg
     |=  atom=@tas
-    ^-  multi-poly
+    ^-  mp-graph
     (mpadd (mp-c a.noun-chals) (mpscal c.noun-chals (v atom)))
   ++  build-atom-poly
-    |=  atom=multi-poly
-    ^-  multi-poly
+    |=  atom=mp-graph
+    ^-  mp-graph
     (mpadd (mp-c a.noun-chals) (mpscal c.noun-chals atom))
   --
 --

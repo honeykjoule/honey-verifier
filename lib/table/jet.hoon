@@ -45,7 +45,6 @@
   ~+
   %+  turn  (range num-jets)
   |=  i=@
-  ?:  =(i num-jets)  %pad
   (crip (weld "sel" (scow %ud i)))
 ::
 ++  num-basic-cols
@@ -101,6 +100,6 @@
 ::
 ++  variables
   |=  num-jets=@
-  ^-  (map term multi-poly)
+  ^-  (map term mp-graph)
   (make-vars:table (column-names num-jets))
 --

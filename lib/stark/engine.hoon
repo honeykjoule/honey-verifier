@@ -10,7 +10,7 @@
   (map (list @) (map @ [boundary=fpoly:f transition=fpoly:f terminal=fpoly:f]))
 ::
 ::  TODO this type could potentially be improved
-::  all-table-funcs is really engine/prover.hoon specific, and is null when instantiating a verifier stark, while 
+::  all-table-funcs is really engine/prover.hoon specific, and is null when instantiating a verifier stark, while
 ::  all-verifier-funcs is general, and is always valid
 +$  stark-input
   $:  num-states=@
@@ -33,6 +33,7 @@
 ~%  %stark-engine  ..stark-input  ~
 ::
 =,  f
+=,  mp-to-graph
 ::
 |_  stark-input
 ++  num-challenges     num-total-chals:chal
@@ -75,9 +76,9 @@
     %-  ~(push fstack:util (init-felt-stack:util alf))
     tre:(build-tree-data:fock prod a b c alf)
   ::
-  =/  input-linking-boundary=multi-poly
+  =/  input-linking-boundary=mp-graph
     (mpsub (~(got by variables:stack-common) %cs) (mp-c computation-fp))
-  =/  output-linking-terminal=multi-poly
+  =/  output-linking-terminal=mp-graph
     (mpsub (~(got by variables:stack-common) %ps) (mp-c product-fp))
   ::  TODO enable output linking
   (wrap-verifier-funcs old ~[input-linking-boundary] ~)
@@ -109,7 +110,7 @@
           ::
           ::(terminal-constraints:funcs chals ~)
       ==
-    |=  [constraint=multi-poly d=@]
+    |=  [constraint=mp-graph d=@]
     =/  degree-bounds
       %+  reap  (mul fw 2)
       (static-interpolant-degree-bound h num-randomizers)
