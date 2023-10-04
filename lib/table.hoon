@@ -1,4 +1,4 @@
-/+  *list, *goldilocks, fock, jet, table-util
+/+  *list, *goldilocks, fock, jet, table-util, *challenges
 ~%  %table-top  ..part  ~
 |%
 ::  TODO it may be more appropriate to completely split the constraints into verifier-funcs
@@ -39,17 +39,17 @@
   --
 ::
 ++  verifier-funcs
-  ::  the verifier interface is a strict subset of the prover interface because verify:nock-verifier only uses constraints 
+  ::  the verifier interface is a strict subset of the prover interface because verify:nock-verifier only uses constraints
   $+  verifier-funcs
   $_  ^|
   |%
   ++  boundary-constraints
     |~  challenges=(list felt:f)
-    *(list multi-poly:f)
+    *(list mp-graph:f)
   ::
   ++  transition-constraints
     |~  [challenges=(list felt:f) =jet-map:jet]
-    *(map term multi-poly:f)
+    *(map term mp-graph:f)
   ::
   ++  terminal-constraints
     ::
@@ -61,7 +61,7 @@
     ::  TODO use mip
     ::
     |~  [challenges=(list felt:f) terminals=(map term (map term felt:f))]
-    *(list multi-poly:f)
+    *(list mp-graph:f)
   --
 ::  TODO make some of these functions a door
 ++  table-to-verifier-funcs
@@ -78,7 +78,7 @@
 ++  wrap-verifier-funcs
   ::  Produces a new table-funcs that includes additional constraints;
   ::  useful for injecting dynamic constraints.
-  |=  [old=verifier-funcs bound=(list multi-poly:f) term=(list multi-poly:f)]
+  |=  [old=verifier-funcs bound=(list mp-graph:f) term=(list mp-graph:f)]
   ^-  verifier-funcs
   ::
   ::  Note: it's not possible to construct cores inline somewhere else and have them be the same type,
@@ -95,12 +95,12 @@
   |%
   ++  boundary-constraints
     |=  challenges=(list felt:f)
-    ^-  (list multi-poly:f)
+    ^-  (list mp-graph:f)
     (weld bound (boundary-constraints:old challenges))
   ++  transition-constraints            transition-constraints:old
   ++  terminal-constraints
     |=  [challenges=(list felt:f) terminals=(map ^term (map ^term felt:f))]
-    ^-  (list multi-poly:f)
+    ^-  (list mp-graph:f)
     (weld term (terminal-constraints:old challenges terminals))
   --
 ++  replace-vrf-funcs
@@ -145,24 +145,24 @@
 ::  var: helper door. allows for terse `(v %idx)` style variable accesses
 ::       after initializing with a variables map
 ++  var
-  |_  variables=(map term multi-poly:f)
+  |_  variables=(map term mp-graph:f)
   ++  v
     |=  nam=term
-    ^-  multi-poly:f
+    ^-  mp-graph:f
     ~+
     ~|  var-not-found+nam
     (~(got by variables) nam)
   --
 ::
 ::  make-vars: given a list of variable names (i.e., column names),
-::             produce a map from variable names to corresponding multi-poly
+::             produce a map from variable names to corresponding mp-graph
 ++  make-vars
   |=  [var-names=(list term)]
-  |^  ^-  (map term multi-poly:f)
+  |^  ^-  (map term mp-graph:f)
   ::
   ::  Equivalent to:
   ::
-  ::  %-  ~(gas by (map term multi-poly:f))
+  ::  %-  ~(gas by (map term mp-graph:f))
   ::  :~  [%idx (make-variable 0)]
   ::      [%a (make-variable 1)]
   ::      ...
@@ -186,11 +186,11 @@
     (turn var-names |=(nam=term `@tas`(successor-name nam succ-num)))
   ::
   =/  vars-all  (weld var-names successor-names)
-  ::  produce the final map of all var-names to multi-polys
-  %-  ~(gas by *(map term multi-poly:f))
+  ::  produce the final map of all var-names to mp-graphs
+  %-  ~(gas by *(map term mp-graph:f))
   %^  zip  (range 0 (lent vars-all))  vars-all
   |=  [i=@ var=term]
-  [var (make-variable:f i)]
+  [var (make-variable:mp-to-graph:f i)]
   ::
   ++  successor-name
     |=  [nam=term n=@]
@@ -220,7 +220,6 @@
   (div domain-len height)
 ::
 ++  tab
-  ~%  %tab  ..table-funcs  ~
   =,  f
   |_  =table
   ++  typ     [field base-width full-width num-randomizers]:table
@@ -229,6 +228,7 @@
   ::          defined to be the next smallest power of 2
   ::          e.g. if (lent p.table) == 5, ~(height tab table) == 8
   ++  height
+    ^-  @
     ~+
     =/  len  (lent p.table)
     ?:  =(len 0)  0
@@ -239,6 +239,7 @@
     ~+((ordered-root height))
   ::
   ++  omicron-domain
+    ^-  (list felt)
     ~+
     %+  turn  (range height)
     |=  i=@
@@ -251,52 +252,15 @@
   ++  interpolant-degree-bound     (dec interpolation-domain-length)
   ::
   ++  interpolate-columns
-    ~/  %interpolate-columns
-    |=  [omega=belt order=@ cols=(list @) eny=@]
+    |=  [omega=belt order=@ first-col=@ last-col=@ eny=@]
     ^-  (list fpoly)
     ?>  =(1 (bpow omega order))
     ?>  !=(1 (bpow omega (div order 2)))
     ?:  =(height 0)
-      (reap (lent cols) zero-fpoly)
-    ::  odd powers of omega -> no collision with omicron
-    =/  randomizer-domain
-      %+  turn  (range num-randomizers.table)
-      |=  i=@
-      (lift (bpow omega +((mul i 2))))
+      (reap (sub last-col first-col) zero-fpoly)
     =/  domain=fpoly
       (init-fpoly omicron-domain)
-      ::  TODO: adding randomizer stops this from being a power of two!!
-      ::  temporarily removed
-      ::  (init-fpoly (weld omicron-domain randomizer-domain))
-    =/  rng  ~(. og eny)
-    =|  polys=(list fpoly)
-    ::  TODO: time complexity is abysmal, but easy to fix
-    |-
-    ?~  cols
-      (flop polys)
-    =/  trace  (col i.cols)
-    =^  randomizers=fpoly  rng
-      =^  big-list=(list @)  rng
-        (gen-random-list (mul ext-degree num-randomizers.table) p rng)
-      :_  rng
-      =-  (init-fpoly ran)
-      %^  zip-roll  big-list  (range (lent big-list))
-      |=  [[b=belt i=@] acc=(list belt) ran=poly]
-      ?:  =(ext-degree 1)
-        `[b ran]
-      ?:  =((mod i ext-degree) (dec ext-degree))
-        `[(frep b^acc) ran]
-      [b^acc ran]
-    =/  values=fpoly
-      trace
-      ::  TODO: adding randomizer stops this from being a power of two!!
-      ::  temporarily removed
-      ::(~(weld fop trace) randomizers)
-    ?>  =(len.values len.domain)
-    ?.  =((dis len.domain (dec len.domain)) 0)
-      ::  TODO: avoid this path at all costs
-      $(cols t.cols, polys [(interpolate domain values) polys])
-    $(cols t.cols, polys [(intercosate (lift 1) len.domain values) polys])
+    (interpolate-table p.table height first-col last-col domain)
   ::
   ++  unit-distance
     |=  domain-len=@
@@ -308,19 +272,16 @@
   ++  lde-interpolate
     |=  [domain=fpoly omega=belt length=@ eny=@]
     ^-  (pair @ (list fpoly))
-    =/  ran  (range base-width.table)
-    :-  (lent ran)
-    (interpolate-columns omega length ran eny)
+    :-  base-width.table
+    (interpolate-columns omega length 0 (dec base-width.table) eny)
   ::
   ++  ldex-interpolate
     |=  [domain=fpoly omega=belt length=@ eny=@]
     ^-  (pair @ (list fpoly))
-    =/  ran  (range [base-width full-width]:table)
-    :-  (lent ran)
-    (interpolate-columns omega length ran eny)
+    :-  (sub full-width:table base-width:table)
+    (interpolate-columns omega length base-width:table (dec full-width:table) eny)
   ::
   ++  all-quotients
-    ~/  %all-quotients
     |=  $:  domain=(list @)
             codewords=(list fpoly)
             challenges=(list @)
@@ -330,14 +291,13 @@
             =jet-map:jet
         ==
     |^  ^-  (list fpoly)
-    %-  zing
-      :~  boundary-quotients
-          transition-quotients
-          terminal-quotients
-      ==
+    :~  boundary-quotients
+        transition-quotients
+        terminal-quotients
+    ==
     ::
     ++  boundary-quotients
-      ^-  (list fpoly)
+      ^-  fpoly
       =/  boundary-constraints  (boundary-constraints:funcs challenges)
       =/  boundary-zerofier-inverse
         ?^  zerofiers
@@ -346,12 +306,13 @@
         %-  mass-inversion
         %+  turn  domain
         |=(a=felt (fsub a (lift 1)))
+      =/  gam  (~(r rnd (make-shared-challenges challenges)) %gam)
       =/  points=(list fpoly)
         (zipped-points-from-codewords domain codewords)
-      (turn-zip-fmul-mpeval boundary-constraints boundary-zerofier-inverse points)
+      (combine-constraints-and-eval boundary-constraints boundary-zerofier-inverse points gam)
     ::
     ++  transition-quotients
-      ^-  (list fpoly)
+      ^-  fpoly
       ?<  =(height 0)
       =/  zerofier-inverse=fpoly
         ?^  zerofiers
@@ -369,12 +330,13 @@
       =/  unit-dist  (unit-distance (lent domain))
       =/  transition-constraints
         (unlabel-constraints:table-util (transition-constraints:funcs challenges jet-map))
+      =/  gam  (~(r rnd (make-shared-challenges challenges)) %gam)
       =/  points=(list fpoly)
         (zipped-point-pairs-from-codewords domain codewords unit-dist)
-      (turn-zip-fmul-mpeval transition-constraints zerofier-inverse points)
+      (combine-constraints-and-eval transition-constraints zerofier-inverse points gam)
     ::
     ++  terminal-quotients
-      ^-  (list fpoly)
+      ^-  fpoly
       =/  terminal-constraints
         (terminal-constraints:funcs challenges terminals)
       =/  zerofier-inverse
@@ -387,18 +349,18 @@
         (fsub a (finv (lift omicron)))
       =/  points=(list fpoly)
         (zipped-points-from-codewords domain codewords)
-      (turn-zip-fmul-mpeval terminal-constraints zerofier-inverse points)
+      =/  gam  (~(r rnd (make-shared-challenges challenges)) %gam)
+      (combine-constraints-and-eval terminal-constraints zerofier-inverse points gam)
     --
   ::
   ++  all-quotient-degree-bounds
-    ~/  %all-quotient-degree-bounds
     |=  $:  challenges=(list @)
             terminals=(map term (map term felt:f))
             height=@
             funcs=verifier-funcs
             =jet-map:jet
         ==
-    %-  zing
+    ^-  (list @)
     :~  (boundary-quotient-degree-bounds +<)
         (transition-quotient-degree-bounds +<)
         (terminal-quotient-degree-bounds +<)
@@ -411,12 +373,13 @@
             funcs=verifier-funcs
             =jet-map:jet
         ==
-    ^-  (list @)
+    ^-  @
     =/  boundary-constraints  (boundary-constraints:funcs challenges)
     =/  max-degrees=(list @)
       (reap full-width.table (static-interpolant-degree-bound height num-randomizers.table))
-    %+  turn  boundary-constraints
-    |=  constraint=multi-poly
+    %+  roll  boundary-constraints
+    |=  [constraint=mp-graph acc=_1]
+    %+  max  acc
     (dec (max (substitution-degree-bound constraint max-degrees) 1))
   ::
   ++  transition-quotient-degree-bounds
@@ -426,16 +389,15 @@
             funcs=verifier-funcs
             =jet-map:jet
         ==
-    ^-  (list @)
+    ^-  @
     =/  transition-constraints
       %-  unlabel-constraints:table-util
       (transition-constraints:funcs challenges jet-map)
     =/  max-degrees=(list @)
       (reap (mul 2 full-width.table) (static-interpolant-degree-bound height num-randomizers.table))
-    %-  flop
     %+  roll  transition-constraints
-    |=  [constraint=multi-poly degree-bounds=(list @)]
-    :_  degree-bounds
+    |=  [constraint=mp-graph acc=_1]
+    %+  max  acc
     .+((sub (substitution-degree-bound constraint max-degrees) height))
   ::
   ++  terminal-quotient-degree-bounds
@@ -445,12 +407,13 @@
             funcs=verifier-funcs
             =jet-map:jet
         ==
-    ^-  (list @)
+    ^-  @
     =/  terminal-constraints  (terminal-constraints:funcs challenges terminals)
     =/  max-degrees=(list @)
       (reap full-width.table (static-interpolant-degree-bound height num-randomizers.table))
-    %+  turn  terminal-constraints
-    |=  constraint=multi-poly
+    %+  roll  terminal-constraints
+    |=  [constraint=mp-graph acc=_1]
+    %+  max  acc
     (dec (max (substitution-degree-bound constraint max-degrees) 1))
   ::
   ++  num-quotients
@@ -510,11 +473,11 @@
     %.y
     ::
     ++  run-bounds
-      |=  boundary-constraints-labeled=(map @tas multi-poly)
+      |=  boundary-constraints-labeled=(map @tas mp-graph)
       %+  mevy  ~(tap by boundary-constraints-labeled)
-      |=  [name=@tas constraint=multi-poly]
+      |=  [name=@tas constraint=mp-graph]
       =/  point  (snag 0 p.table)
-      =/  eval  (mpeval constraint point)
+      =/  eval  (mpeval-graph constraint point)
       ?:  =((lift 0) eval)  ~
       %-  some
       :*  %constraint-failed
@@ -524,11 +487,11 @@
       ==
     ::
     ++  run-terms
-      |=  terminal-constraints-labeled=(map @tas multi-poly)
+      |=  terminal-constraints-labeled=(map @tas mp-graph)
       %+  mevy  ~(tap by terminal-constraints-labeled)
-      |=  [name=@tas constraint=multi-poly]
+      |=  [name=@tas constraint=mp-graph]
       =/  point  (rear p.table)
-      =/  eval  (mpeval constraint point)
+      =/  eval  (mpeval-graph constraint point)
       ?:  =((lift 0) eval)  ~
       %-  some
       :*  %constraint-failed
@@ -538,19 +501,19 @@
       ==
     ::
     ++  run-trans
-      |=  transition-constraints-labeled=(map @tas multi-poly)
+      |=  transition-constraints-labeled=(map @tas mp-graph)
       ::  produces ~ if all constraints pass on all points
       ::  and [~ err] on first error
       %+  mevy  ~(tap by transition-constraints-labeled)
       ::  following gate produces ~ if given constraint passes on all points
       ::  and [~ err] on first error
-      |=  [name=@tas constraint=multi-poly]
+      |=  [name=@tas constraint=mp-graph]
       %+  mevy  (range (dec (lent p.table)))
       |=  i=@
       =/  point       (snag i p.table)
       =/  next-point  (snag +(i) p.table)
       =/  combo-point  (~(weld fop point) next-point)
-      =/  eval  (mpeval constraint combo-point)
+      =/  eval  (mpeval-graph constraint combo-point)
       ?:  =((lift 0) eval)  ~
       %-  some
       :*  %constraint-failed
@@ -562,9 +525,9 @@
       ==
     ::
     ++  labeled-constraints
-      |=  [constraints=(list multi-poly) prefix=tape]
+      |=  [constraints=(list mp-graph) prefix=tape]
       =/  len  (lent constraints)
-      %-  ~(gas by *(map @tas multi-poly))
+      %-  ~(gas by *(map @tas mp-graph))
       (zip (make-labels prefix len) constraints same)
     ::
     ++  make-labels

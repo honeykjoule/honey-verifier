@@ -48,6 +48,6 @@
   ~+
   (weld basic-column-names ext-column-names)
 ++  variables
-  ^-  (map term multi-poly)
+  ^-  (map term mp-graph)
   (make-vars column-names)
 --

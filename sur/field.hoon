@@ -115,4 +115,16 @@
 ::    length. See +valid-mp below. These explicit variables may not all be necessary, e.g. if
 ::    a variable appears with exponent 0 in every monomial summand.
 +$  multi-poly  $+(multi-poly (map bpoly felt))
+::
+::  A multi-poly stored as an expression graph to preserve semantic information.
++$  mp-graph
+  $~  [%con 0x1.0000.0000.0000.0000.0000.0000.0000.0000.0000.0000.0000.0000]
+  $%  [%con a=felt]    :: felt constant
+      [%var col=@]     :: variable. col is 0-based column index.
+      [%add a=mp-graph b=mp-graph]
+      [%sub a=mp-graph b=mp-graph]
+      [%mul a=mp-graph b=mp-graph]
+      [%pow a=mp-graph n=@]
+      [%scal c=felt a=mp-graph]
+  ==
 --

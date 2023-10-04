@@ -1,9 +1,10 @@
 /+  *table, *fock
 =,  f
+=,  mp-to-graph
 ::
 |%
 ++  variables
-  ^-  (map term multi-poly:f)
+  ^-  (map term mp-graph:f)
   =/  col-variables
     %-  make-vars
     variable-labels
@@ -16,7 +17,7 @@
     (~(got by col-variables) %path)
   ==
 ::  variable-labels: names for variables as terms
-++  variable-labels
+++  basic-labels
   ^-  (list term)
   :~
   ::
@@ -30,6 +31,10 @@
     %yeti  ::  inverse of yet=(tar-axis) (as in, "are we there yet")
     %yetf  ::  yet flag; 0 if yet=0, 1 otherwise
     %uses  ::  how many times do we have to record this (subject, axis) pair
+  ==
+++  ext-labels
+  ^-  (list term)
+  :~
   ::
   ::  extension fields
   ::
@@ -64,4 +69,5 @@
     %out  ::  output multiset
     %noun-mulset  ::  multiset for ensuring tree felts have been validated
   ==
+++  variable-labels  (weld basic-labels ext-labels)
 --

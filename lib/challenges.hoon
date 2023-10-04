@@ -18,6 +18,7 @@
       %u
       %alf  ::  stack
       %bet  ::  multiset
+      %gam  ::  combine polynomials
   ==
 ::  no local randomness for now, but we are keeping the code
 ++  all-local-names

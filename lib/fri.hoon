@@ -1,5 +1,14 @@
 /+  *merkle, *proof-stream, *goldilocks
 ::
+~%  %top-fri  ..part  ~
+:: This core is just to get hints working below. Without it I can't figure out how to
+:: specify the parents correctly in the hints.
+|%
+++  placeholder
+  |=  n=@ud
+  !!
+--
+~%  %fri-core  ..placeholder  ~
 =,  f
 ::
 |%
@@ -13,6 +22,7 @@
   ==
 ::
 ++  fri
+  ~/  %fri-door
   |_  fri-input
   ++  eval-domain
     ~+
@@ -36,6 +46,7 @@
     num
   ::
   ++  verify
+    ~/  %verify
     |=  [stream=stream-state root=@uv]
     ^-  ?
     ::
@@ -160,6 +171,7 @@
     str
   ::
   ++  prove
+    ~/  %prove
     |=  [codeword=fpoly stream=stream-state]
     ^-  [top-level-indices=(list @) stream=stream-state]
     =/  log-codeword-len  (dec (xeb len.codeword))
@@ -200,6 +212,7 @@
     (query-last (rear (snip codewords)) (rear codewords) inner-indices stream)
   ::
   ++  commit
+    ~/  %commit
     |=  [codeword=fpoly stream=stream-state]
     ^-  [codewords=(list fpoly) stream-state]
     =-  [codewords stream]
@@ -247,6 +260,7 @@
     (~(snag fop codeword) (add (div len.codeword 2) i))
   ::
   ++  query
+    ~/  %query
     |=  [curr=fpoly next=fpoly c-ind=(list @) stream=stream-state]
     ^-  stream-state
     ::
@@ -278,6 +292,7 @@
     [c-leaf path:(build-merk-proof nex-t c-axis)]
   ::
   ++  query-last
+    ~/  %query-last
     |=  [curr=fpoly last=fpoly c-ind=(list @) stream=stream-state]
     ^-  stream-state
     ::

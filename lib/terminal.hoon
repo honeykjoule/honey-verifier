@@ -1,6 +1,7 @@
 /-  field
 /+  *goldilocks
 =,  f
+=,  mp-to-graph
 ::
 |%
 ++  gen-consistency-checks
@@ -14,15 +15,15 @@
   ::
   ::  extraneous-columns := terminal-columns - all-columns
   ::
-  |=  [our-terminals=(map term felt) our-columns=(list term) v=$-(@tas multi-poly)]
-  ^-  (list multi-poly)
+  |=  [our-terminals=(map term felt) our-columns=(list term) v=$-(@tas mp-graph)]
+  ^-  (list mp-graph)
   =/  terminal-columns    ~(key by our-terminals)
   =/  all-columns         (~(gas in *(set term)) our-columns)
   =/  extraneous-columns  (~(dif in terminal-columns) all-columns)
   ?>  =(~ extraneous-columns)
   %+  turn  ~(tap in terminal-columns)
   |=  col=@tas
-  ^-  multi-poly
+  ^-  mp-graph
   =/  term-val  (~(got by our-terminals) col)
   ::  terminal constraint:
   ::

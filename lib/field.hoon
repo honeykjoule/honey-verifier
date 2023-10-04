@@ -24,7 +24,7 @@
 ::
 ::  ord(h) = 2^32, i.e. h = (2^32)th root of unity
 ++  h  20.033.703.337
-::  TODO find a better way to do this. 
+::  TODO find a better way to do this.
 ::       hack because /+  *list imports stdlib, which shadows poly:field
 ::       but, normal solutions such as doing =,  field don't work
 ::       because core structure changes, messing up jets
@@ -36,9 +36,10 @@
 ++  fpoly  fpoly:field
 ++  poly   poly:field
 ++  multi-poly  multi-poly:field
+++  mp-graph  mp-graph:field
 --
 ::
-~%  %field-basic  ..p  ~
+~%  %field-basic  ..belt  ~
 ::
 ::  base field math
 |%
@@ -455,9 +456,9 @@
     one-bpoly^zero-bpoly
   |-
   ?:  =((bcan (bpoly-to-list b)) ~[0])
-    :+  a
-      m2.u
-    m2.v
+    :+  (init-bpoly (bcan (bpoly-to-list a)))
+      (init-bpoly (bcan (bpoly-to-list m2.u)))
+    (init-bpoly (bcan (bpoly-to-list m2.v)))
   =/  q-r  (bpdvr a b)
   %=  $
     a  b
@@ -833,6 +834,7 @@
   (fadd a (fneg b))
 ::
 ::  fmul: field multiplication
+::
 ++  fmul
   ~/  %fmul
   |:  [a=`felt`(lift 1) b=`felt`(lift 1)]
@@ -1445,6 +1447,26 @@
   ?>  =(len.values order)
   (shift (ifft values) (finv offset))
 ::
+++  interpolate-table
+  ~/  %interpolate-table
+  |=  [trace=(list fpoly) height=@ first-col=@ last-col=@ domain=fpoly]
+  ^-  (list fpoly)
+  =|  polys=(list fpoly)
+  =/  cols  (range first-col .+(last-col))
+  |^
+  ?~  cols  (flop polys)
+  =/  values=fpoly  (get-column i.cols trace)
+  ?>  =(len.values len.domain)
+  ?>  =((dis len.domain (dec len.domain)) 0)
+  $(cols t.cols, polys [(intercosate (lift 1) len.domain values) polys])
+  ++  get-column
+    |=  [n=@ t=(list fpoly)]
+    ^-  fpoly
+    %+  roll  t
+    |:  [row=`fpoly`zero-fpoly vec=`fpoly`[0 0x1]]
+    (~(snoc fop vec) (~(snag fop row) n))
+  --
+::
 ::  multi-polynomial math
 ::
 ::  mp-degree
@@ -1598,6 +1620,63 @@
     f-pad
   =/  padded  (init-bpoly (weld (bpoly-to-list p.i.k-vs) padding))
   $(k-vs t.k-vs, f-pad (~(put by f-pad) padded q.i.k-vs))
+++  mp-to-graph
+  |%
+  ++  make-variable
+    |=  which-variable=@
+    ^-  mp-graph
+    [%var +<]
+  ::
+  ++  mpadd
+    |=  [a=mp-graph b=mp-graph]
+    ^-  mp-graph
+    [%add +<]
+  ::
+  ++  mpsub
+    |=  [a=mp-graph b=mp-graph]
+    ^-  mp-graph
+    [%sub +<]
+  ::
+  ++  mpmul
+    |=  [a=mp-graph b=mp-graph]
+    ^-  mp-graph
+    [%mul +<]
+  ::
+  ++  mppow
+    |=  [a=mp-graph n=@ud]
+    ^-  mp-graph
+    [%pow +<]
+  ::
+  ++  mpscal
+    |=  [c=felt f=mp-graph]
+    ^-  mp-graph
+    [%scal +<]
+  ::
+  ++  mp-c
+    |=  a=felt
+    ^-  mp-graph
+    [%con a]
+  ::
+  ++  mp-cb
+    |=  a=belt
+    ^-  mp-graph
+    [%con (lift a)]
+  ::
+  ++  to-multi-poly
+    |=  p=mp-graph
+    ^-  multi-poly
+    ~+
+    |-  ^-  multi-poly
+    ?-  -.p
+      %con   (^mp-c +.p)
+      %var   (^make-variable +.p)
+      %add   (^mpadd $(p +<.p) $(p +>.p))
+      %sub   (^mpsub $(p +<.p) $(p +>.p))
+      %mul   (^mpmul $(p +<.p) $(p +>.p))
+      %pow   (^mppow $(p +<.p) +>.p)
+      %scal  (^mpscal +<.p $(p +>.p))
+    ==
+  --
 ::
 ::  mpadd: multi-poly addition
 ++  mpadd
@@ -1803,6 +1882,12 @@
   |=  [[k=@ a=felt] prod=_(lift 1)]
   (fmul prod (fpow a k))
 ::
+++  mpeval-graph
+  ~/  %mpeval-graph
+  |=  [mp=mp-graph fargs=fpoly]
+  ^-  felt
+  (mpeval (to-multi-poly:mp-to-graph mp) fargs)
+::
 ::  mp-substitute: given ~[p0(t) p1(t) ... ] substitute pi(t) for xi
 ++  mp-substitute
   ~/  %mp-substitute
@@ -1844,12 +1929,12 @@
 ::
 ::  substitution-bound: bound on degree when subbing polys in f w/ degrees bounded by max-degrees
 ++  substitution-degree-bound
-  |=  [f=multi-poly max-degrees=(list @)]
+  |=  [f=mp-graph max-degrees=(list @)]
   ^-  @
   ~+
   %-  roll
   :_  max
-  %+  turn  ~(tap in ~(key by f))
+  %+  turn  ~(tap in ~(key by (to-multi-poly:mp-to-graph f)))
   |=  bk=bpoly
   =/  k  (bpoly-to-list bk)
   =:    k
@@ -1909,18 +1994,36 @@
 ::       (lth (degree r) (degree b))
 ::   ==
 ::
-++  turn-zip-fmul-mpeval
-  ~/  %turn-zip-fmul-mpeval
-  |=  [constraints=(list multi-poly) terms=fpoly points=(list fpoly)]
-  ^-  (list fpoly)
-  %+  turn  constraints
-  |=  constraint=multi-poly
+++  combine-constraints
+  ~/  %combine-constraints
+  |=  [constraints=(list mp-graph) gamma=felt]
+  ^-  mp-graph
+  =-  combo
+  %+  roll  constraints
+  |=  [constraint=mp-graph combo=mp-graph gam=_gamma]
+  :_  (fmul gam gamma)
+  %+  mpadd:mp-to-graph  combo
+  %+  mpscal:mp-to-graph  gam
+  constraint
+::
+++  combine-constraints-and-eval
+  ~/  %combine-constraints-and-eval
+  |=  [constraints=(list mp-graph) terms=fpoly points=(list fpoly) gamma=felt]
+  ^-  fpoly
+  =/  combo-constraint
+    (combine-constraints constraints gamma)
+  (zip-fmul-mpeval combo-constraint terms points)
+::
+++  zip-fmul-mpeval
+  ~/  %zip-fmul-mpeval
+  |=  [constraint=mp-graph terms=fpoly points=(list fpoly)]
+  ^-  fpoly
   %-  init-fpoly
   %^  zip  (range len.terms)  points
   |=  [i=@ point=fpoly]
   =/  term  (~(snag fop terms) i)
   %+  fmul  term
-  (mpeval constraint point)
+  (mpeval-graph constraint point)
 ::
 ++  zipped-points-from-codewords
   ~/  %zipped-points-from-codewords

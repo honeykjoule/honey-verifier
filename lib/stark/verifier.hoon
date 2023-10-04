@@ -1,4 +1,4 @@
-/+  engine=stark-engine
+/+  engine=stark-engine, *challenges
 =>  engine
 ::
 ~%  %stark-verifier  ..get-verifier-funcs  ~
@@ -266,6 +266,7 @@
     =/  fw      (snag t table-full-widths)
     =/  h       (snag t heights)
     =/  funcs   (snag t all-verifier-funcs)
+    =/  gam  (~(r rnd (make-shared-challenges challenges)) %gam)
     =/  next-index
       %+  mod
         (add index (static-unit-distance fri-domain-len:clc h))
@@ -280,12 +281,13 @@
     :~  acc
       ::
       ::  boundary
-        %^  zip-roll  (boundary-constraints:funcs challenges)
+        =/  constraint
+          (combine-constraints (boundary-constraints:funcs challenges) gam)
+        =/  bound
           %-  ~(boundary-quotient-degree-bounds tab [[p bw fw num-randomizers] ~])
           [challenges terminals h funcs jets]
-        |=  [[constraint=multi-poly bound=@] icc=(list @)]
-        %+  weld  icc
-        =/  eval  (mpeval constraint point)
+        ^-  (list @)
+        =/  eval  (mpeval-graph constraint point)
         =/  quotient  (fdiv eval (fsub fri-at-index (lift 1)))
         =/  shift  (sub max-degree:clc bound)
         :+  quotient
@@ -293,12 +295,15 @@
         ~
       ::
       ::  transition
-        %^  zip-roll
-            ~(tap by (transition-constraints:funcs challenges jets))
+        =/  constraint
+          %+  combine-constraints
+            (turn ~(tap by (transition-constraints:funcs challenges jets)) tail)
+          gam
+        =/  bound
           %-  ~(transition-quotient-degree-bounds tab [[p bw fw num-randomizers] ~])
           [challenges terminals h funcs jets]
-        |=  [[[nam=@tas constraint=multi-poly] bound=@] icc=(list @)]
-        =/  eval  (mpeval constraint (~(weld fop point) next-point))
+        ^-  (list @)
+        =/  eval  (mpeval-graph constraint (~(weld fop point) next-point))
         ?<  =(h 0)
         =/  table-omicron  (lift (ordered-root h))
         =/  quotient
@@ -307,18 +312,18 @@
             (fsub fri-at-index (finv table-omicron))
           (fsub (fpow fri-at-index h) (lift 1))
         =/  shift  (sub max-degree:clc bound)
-        %+  weld  icc
         :+  quotient
           (fmul quotient (fpow fri-at-index shift))
         ~
       ::
       ::  terminal
-        %^  zip-roll  (terminal-constraints:funcs challenges terminals)
+        =/  constraint
+          (combine-constraints (terminal-constraints:funcs challenges terminals) gam)
+        =/  bound
           %-  ~(terminal-quotient-degree-bounds tab [[p bw fw num-randomizers] ~])
           [challenges terminals h funcs jets]
-        |=  [[constraint=multi-poly bound=@] icc=(list @)]
-        %+  weld  icc
-        =/  eval  (mpeval constraint point)
+        ^-  (list @)
+        =/  eval  (mpeval-graph constraint point)
         =/  table-omicron
           (lift (ordered-root h))
         =/  quotient

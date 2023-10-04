@@ -2,6 +2,7 @@
 =,  f
 |%
 ++  jet
+  =,  mp-to-graph
   |%
   ::  change %col to %col-n
   ++  var-next-row
@@ -14,17 +15,17 @@
     |%
     ++  boundary-constraints
       |=  challenges=(list felt)
-      ^-  (list multi-poly)
+      ^-  (list mp-graph)
       ~
     ::
     ++  terminal-constraints
       |=  [challenges=(list felt) terminals=(map term (map term felt))]
-      ^-  (list multi-poly)
+      ^-  (list mp-graph)
       ~
     ::
     ++  transition-constraints
       |~  [challenges=(list felt:f) =jet-map]
-      ^-  (map term multi-poly)
+      ^-  (map term mp-graph)
       ~+
       ::  name challenges
       =/  r   ~(r rnd (make-challenge-map challenges %stack))
@@ -49,7 +50,7 @@
       =/  selectors-binary
         %+  turn  (selector-column-names:common num-jets)
         |=  name=term
-        ^-  [term multi-poly]
+        ^-  [term mp-graph]
         :-  (crip (weld (trip name) "-binary"))
         (mpmul (v name) (mpsub one-poly (v name)))
       =/  one-selector
@@ -58,9 +59,9 @@
         %+  mpadd  (v %first-row)
         %+  roll  (selector-column-names:common num-jets)
         |:  [name=*@tas poly=(v %pad)]
-        ^-  multi-poly
+        ^-  mp-graph
         (mpadd (v name) poly)
-      =/  constraints=(list [term multi-poly])
+      =/  constraints=(list [term mp-graph])
         :~  ::  if padding=1 then %jet doesn't change
             :-  %pad-jet-unchanged
             (mpmul (v %pad-n) (mpsub (v %jet) (v %jet-n)))
@@ -81,7 +82,7 @@
               (mpscal r-chal (v %prod-n))
             ==
         ==
-      %-  ~(gas by *(map term multi-poly))
+      %-  ~(gas by *(map term mp-graph))
       ;:  weld
         jet-constraints
         selectors-binary
@@ -90,7 +91,7 @@
       ==
       ::
       ++  get-jet-constraints
-        ^-  (list [term multi-poly])
+        ^-  (list [term mp-graph])
         =/  sel-columns  (selector-column-names:common num-jets)
         ::
         %-  zing
@@ -102,7 +103,7 @@
           :: memset constraints
           %+  spun  atoms:jet-func
           |=  [=atom-data [prev-mem-set=(unit @tas) index=@ud]]
-          ^-  (pair [@tas multi-poly] [(unit @tas) @ud])
+          ^-  (pair [@tas mp-graph] [(unit @tas) @ud])
           :_  interim-mem-set.atom-data^(add index 1)
           ?:  ?=(%1 axis.atom-data)
             :: if axis=1 don't multiply onto memset. just decode the sample.
@@ -143,7 +144,7 @@
           %+  transition-constraints:(~(got by jet-func-map) jet)
             vars
           challenges
-        |=  [name=term poly=multi-poly]
+        |=  [name=term poly=mp-graph]
         :-  name
         %+  mpmul  poly
         (v (snag (~(got by jet-map) jet) sel-columns))
