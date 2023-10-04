@@ -6,7 +6,7 @@ Welcome to the Eden Verifier. This codebase includes a `%verifier` agent along w
 ## Recipes
 
 
-### Upgrading the `%verifier` codebase to the latest update
+### Upgrading your copy of the `%verifier` codebase to the latest update
 
 We periodically ship new releases to both our prover and verifier codebases. 
 Some of these update may introduce a backwards-incompatible change, requiring an update.
